@@ -3,7 +3,7 @@
 import { registrationFormControls } from "@/utils";
 import InputComponent from "../components/FormElement/Input";
 import SelectComponent from "../components/FormElement/select";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { registerNewUser } from "@/service/register";
 import { GlobalContext } from "../context";
 import Notification from "../components/notification";
@@ -22,7 +22,7 @@ export default function Register () {
 
     const [formData, setFormData] = useState(initialFormData);
     const [isRegistered, setIsRegistered] = useState(false);
-    const {commonLoader, setCommonLoader} = useContext(GlobalContext)
+    const {pageLevelLoader, SetPageLevelLoader, isAuthUser} = useContext(GlobalContext)
 
     const router = useRouter()
 
@@ -38,7 +38,7 @@ export default function Register () {
     console.log(isFormValid());
 
     async function handleRegisterOnSubmit() {
-        setCommonLoader(true);
+        SetPageLevelLoader(true);
         const data = await registerNewUser(formData);
 
         if(data.success){
@@ -46,18 +46,22 @@ export default function Register () {
                 position: toast.POSITION.TOP_RIGHT,
             });
             setIsRegistered(true);
-            setCommonLoader(false);
+            SetPageLevelLoader(false);
             setFormData(initialFormData);
         } else {
           toast.error(data.message, {
             position: toast.POSITION.TOP_RIGHT,
           });
-            setCommonLoader(false);
+            SetPageLevelLoader(false);
             setFormData(initialFormData);
         }
 
        console.log(data);
     }
+
+    useEffect(() => {
+        if (isAuthUser) router.push("/");
+      }, [isAuthUser]);
 
     return (
         <div className="bg-white relative">
@@ -115,11 +119,11 @@ export default function Register () {
                                 disabled={!isFormValid()}
                                 onClick={handleRegisterOnSubmit}
                                 >
-                                    {commonLoader ? ( 
+                                    {pageLevelLoader ? ( 
                                       <ComponentLevelLoader
                                         text={"Registering"}
                                         color={"#ffffff"}
-                                        loading={commonLoader}
+                                        loading={pageLevelLoader}
                                         />
                                     ) : (
                                         "Register"

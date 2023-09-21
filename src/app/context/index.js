@@ -7,7 +7,8 @@ export const GlobalContext = createContext(null);
 
 export default function GlobalState({children}) {
 const [showNavModal, setShowNavModal] = useState(false);
-const [commonLoader, setCommonLoader] = useState(false);
+const [pageLevelLoader, SetPageLevelLoader] = useState(false);
+const [componentLevelLoader, setComponentLevelLoader] = useState({loading : false , id:''});
 const [isAuthUser, setIsAuthUser] = useState(null);
 const [user, setUser] = useState(null);
 
@@ -23,8 +24,8 @@ useEffect(()=> {
     }
 }, [Cookies])
 
-    return (<GlobalContext.Provider value={{showNavModal, setShowNavModal, commonLoader, setCommonLoader, 
-   isAuthUser, setIsAuthUser, user, setUser}}>
+    return (<GlobalContext.Provider value={{showNavModal, setShowNavModal, pageLevelLoader, SetPageLevelLoader, 
+   isAuthUser, setIsAuthUser, user, setUser, componentLevelLoader, setComponentLevelLoader}}>
         {children}
         </GlobalContext.Provider>
     );
