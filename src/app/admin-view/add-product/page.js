@@ -3,11 +3,16 @@
 import InputComponent from "@/app/components/FormElement/Input";
 import TileComponent from "@/app/components/FormElement/TileComponent";
 import SelectComponent from "@/app/components/FormElement/select";
-import { addNewProduct } from "@/service/product";
+import ComponentLevelLoader from "@/app/components/loader/componentlevel";
+import Notification from "@/app/components/notification";
+import { GlobalContext } from "@/app/context";
+import { addNewProduct, updateAProduct } from "@/service/product";
 import { AvailableSizes, adminAddProductformControls, firebaseConfig, firebaseStorageURL } from "@/utils";
 import {initializeApp} from "firebase/app";
-import {getDownloadURL, getStorage, ref, uploadBytesResumable} from "firebase/storage";
-import { useState } from "react";
+import {getDownloadURL, getStorage, ref, uploadBytesResumable} from "firebase/storage"; 
+import { useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {resolve} from "styled-jsx/css";
 
 const app = initializeApp(firebaseConfig);
@@ -59,6 +64,16 @@ export default function AdminAddNewProduct(){
 
     const [formData, setFormData] = useState(initialFormData);
 
+    const {componentLevelLoader, setComponentLevelLoader, currentUpdatedProduct, setCurrentUpdatedProduct} = useContext(GlobalContext);
+
+    console.log(currentUpdatedProduct);
+
+    const router = useRouter ()
+
+    useEffect(()=> {
+      if(currentUpdatedProduct !== null) setFormData(currentUpdatedProduct)
+    }, [currentUpdatedProduct])
+
  async function handleImage(event) {
     const extractImageUrl = await helperForUploadingImageToFirebase(event.target.files[0]);
 
@@ -88,10 +103,35 @@ export default function AdminAddNewProduct(){
  console.log(formData);
 
  async function handleAddProduct(){
-    const res = await addNewProduct(formData);
+    setComponentLevelLoader({loading : true , id:""});
+    const res = 
+    currentUpdatedProduct !== null 
+    ? await updateAProduct(formData)
+    : await addNewProduct(formData);
 
     console.log(res);
+
+    if(res.success){
+        setComponentLevelLoader({loading : false , id:""});
+        toast.success(res.message, {
+            position: toast.POSITION.TOP_RIGHT
+        });
+
+        setFormData(initialFormData);
+        setCurrentUpdatedProduct(null)
+        setTimeout(()=>{
+           router.push('/admin-view/all-products')
+        }, 1000)
+    } else {
+        toast.error(res.message, {
+            position: toast.POSITION.TOP_RIGHT
+        });
+        setComponentLevelLoader({loading : false , id:""});
+        setFormData(initialFormData);
+    }
  }
+
+ console.log(formData);
 
     return (
         <div className="w-full mt-5 mr-0 mb-0 ml-0 relative">
@@ -139,10 +179,21 @@ export default function AdminAddNewProduct(){
                     )}
                     <button onClick={handleAddProduct}className="inline-flex w-full items-center justify-center bg-black px-6 py-4 text-lg text-white font-medium 
                     uppercase tracking-wide">
-                        Add Product
+                        { componentLevelLoader && componentLevelLoader.loading ? (
+                        <ComponentLevelLoader
+                        text={currentUpdatedProduct !== null ? "Updating Product" : "Adding Product"}
+                        color={"#ffffff"}
+                        loading={componentLevelLoader && componentLevelLoader.loading}
+                        />
+                        ) : currentUpdatedProduct !== null ? (
+                            "Update Product"
+                        ) : (
+                            "Add Product"
+                        )}
                     </button>
                 </div>
             </div>
+            <Notification/>
         </div>
-    )
+    );
 }

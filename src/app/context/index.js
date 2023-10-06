@@ -11,6 +11,7 @@ const [pageLevelLoader, SetPageLevelLoader] = useState(false);
 const [componentLevelLoader, setComponentLevelLoader] = useState({loading : false , id:''});
 const [isAuthUser, setIsAuthUser] = useState(null);
 const [user, setUser] = useState(null);
+const [currentUpdatedProduct, setCurrentUpdatedProduct] = useState(null);
 
 useEffect(()=> {
     console.log(Cookies.get("token"))
@@ -25,7 +26,7 @@ useEffect(()=> {
 }, [Cookies])
 
     return (<GlobalContext.Provider value={{showNavModal, setShowNavModal, pageLevelLoader, SetPageLevelLoader, 
-   isAuthUser, setIsAuthUser, user, setUser, componentLevelLoader, setComponentLevelLoader}}>
+   isAuthUser, setIsAuthUser, user, setUser, componentLevelLoader, setComponentLevelLoader, currentUpdatedProduct, setCurrentUpdatedProduct}}>
         {children}
         </GlobalContext.Provider>
     );

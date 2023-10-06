@@ -66,7 +66,7 @@ export async function POST(req) {
                 success: true,
                 message: "Product added successfully",
             });     
-        } else {
+        } else if(!newlyCreatedProduct){
             return NextResponse.json({
                 success: false,
                 message: "Failed to add the product ! Please try again",

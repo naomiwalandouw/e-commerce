@@ -2,7 +2,7 @@
 
 import { GlobalContext } from "@/app/context";
 import { adminNavOptions, navOptions, styles } from "@/utils";
-import { Fragment, useContext } from "react";
+import { Fragment, useContext, useEffect } from "react";
 import CommmonModal from "../commonmodel";
 import Cookies from "js-cookie";
 import { usePathname, useRouter } from "next/navigation";
@@ -39,12 +39,19 @@ function NavItems({ isModalView = false, isAdmInView, router}) {
 
 export default function Navbar() {
     const {showNavModal, setShowNavModal} = useContext(GlobalContext);
-    const {user, isAuthUser, setIsAuthUser, setUser} = useContext(GlobalContext);
+    const {user, isAuthUser, setIsAuthUser, setUser, currentUpdatedProduct, setCurrentUpdatedProduct} = useContext(GlobalContext);
 
     const pathName = usePathname();
     const router = useRouter();
 
-    console.log(pathName);
+    console.log(currentUpdatedProduct, 'navbar');
+
+    useEffect(()=> {
+        if (
+            pathName !== "/admin-view/add-product" && currentUpdatedProduct !== null
+        )
+          setCurrentUpdatedProduct(null);
+    }, [pathName]);
 
     function handleLogout() {
         setIsAuthUser(false);
